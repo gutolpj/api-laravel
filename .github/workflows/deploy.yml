@@ -7,18 +7,17 @@ on:
 jobs:
   build_deploy:
     runs-on: windows-latest
+
     steps:
       - name: "Baixar o código"
         uses: actions/checkout@v4
 
       - name: "Copiar arquivos para o servidor Windows"
-        uses: appleboy/winrm-deploy-action@latest
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST_SERVER }}
           username: ${{ secrets.EC2_USER }}
           password: ${{ secrets.EC2_PASSWORD }}
-          port: 5986
-          use_https: true
-          source: "."
-          target: "C:\\xampp\\htdocs"
-          cleanup: false
+          port: 22
+          script: |
+            powershell -Command "Copy-Item -Path '.' -Destination 'C:\\xampp\\htdocs' -Recurse"
