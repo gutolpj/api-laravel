@@ -1,4 +1,4 @@
-name: "Deploy para vps"
+name: "Deploy para VPS Windows"
 on:
   push:
     branches:
@@ -6,17 +6,18 @@ on:
 
 jobs:
   build_deploy:
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
     steps:
-      - name: "Baixar o codigo"
+      - name: "Baixar o código"
         uses: actions/checkout@v4
 
-      - name: "Copiar arquivos para ec2"
-        uses: appleboy/scp-action@v0.1.7
+      - name: "Copiar arquivos para o servidor Windows"
+        uses: appleboy/winrm-action@v0.1.0
         with:
           host: ${{ secrets.HOST_SERVER }}
-          username: "gustavo"
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
-          target: ${{ secrets.EC2_SISTEM }}
+          username: ${{ secrets.EC2_USER }}
+          password: ${{ secrets.EC2_PASSWORD }}
+          port: 5986
+          use_https: true
+          command: |
+            Copy-Item -Path "C:\github\workspace\*" -Destination "C:\xampp\htdocs" -Recurse
