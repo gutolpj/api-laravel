@@ -16,7 +16,7 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST_SERVER }}
-          username: "ubuntu"
+          username: "gustavo"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
           target: ${{ secrets.EC2_SISTEM }}
