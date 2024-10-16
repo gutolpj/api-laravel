@@ -12,12 +12,19 @@ jobs:
       - name: "Baixar o código"
         uses: actions/checkout@v4
 
+      - name: "Instalar WinRM"
+        run: |
+          Install-Module -Name 'PSWindowsUpdate' -Force -SkipPublisherCheck
+          Install-Module -Name 'Carbon' -Force -SkipPublisherCheck
+          Import-Module -Name 'PSWindowsUpdate'
+          Import-Module -Name 'Carbon'
+
       - name: "Copiar arquivos para o servidor Windows"
-        uses: appleboy/ssh-action@master
+        uses: menardorama/winrm-action@v2
         with:
           host: ${{ secrets.HOST_SERVER }}
           username: ${{ secrets.EC2_USER }}
           password: ${{ secrets.EC2_PASSWORD }}
-          port: 22
-          script: |
-            powershell -Command "Copy-Item -Path '.' -Destination 'C:\\xampp\\htdocs' -Recurse"
+          use_tls: true
+          script_file: |
+            Copy-Item -Path '.' -Destination 'C:\\xampp\\htdocs' -Recurse
