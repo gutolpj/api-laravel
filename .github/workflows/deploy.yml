@@ -12,12 +12,22 @@ jobs:
       - name: "Baixar o código"
         uses: actions/checkout@v4
 
-      - name: "Copiar arquivos para o servidor Windows"
+      - name: "Configurar WinRM no servidor"
         run: |
           $user = "${{ secrets.EC2_USER }}"
           $password = ConvertTo-SecureString "${{ secrets.EC2_PASSWORD }}" -AsPlainText -Force
           $credential = New-Object System.Management.Automation.PSCredential ($user, $password)
           Invoke-Command -ComputerName "${{ secrets.HOST_SERVER }}" -Credential $credential -ScriptBlock {
             Copy-Item -Path "$env:GITHUB_WORKSPACE\*" -Destination "C:\xampp\htdocs" -Recurse -Force
+          } -Authentication Basic -UseSSL
+        shell: pwsh
+
+      - name: "Executar comandos remotos via WinRM"
+        run: |
+          $user = "${{ secrets.EC2_USER }}"
+          $password = ConvertTo-SecureString "${{ secrets.EC2_PASSWORD }}" -AsPlainText -Force
+          $credential = New-Object System.Management.Automation.PSCredential ($user, $password)
+          Invoke-Command -ComputerName "${{ secrets.HOST_SERVER }}" -Credential $credential -ScriptBlock {
+            cd "C:\xampp\htdocs"
           } -Authentication Basic -UseSSL
         shell: pwsh
