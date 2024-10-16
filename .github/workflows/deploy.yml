@@ -1,4 +1,4 @@
-name: "Deploy para VPS Windows"
+name: "Deploy para vps"
 on:
   push:
     branches:
@@ -9,23 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Baixar o código"
+      - name: "Baixar o codigo"
         uses: actions/checkout@v4
 
-      - name: "Copiar arquivos para o servidor Windows via SCP"
+      - name: "Copiar arquivos para ec2"
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST_SERVER }}
-          username: ${{ secrets.EC2_USER }}
+          username: "ubuntu"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "C:\\xampp\\htdocs"
-
-      - name: "Executar comandos remotos via SSH"
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST_SERVER }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd "C:\\xampp\\htdocs"
+          target: ${{ secrets.EC2_SISTEM }}
