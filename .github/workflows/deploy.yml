@@ -12,19 +12,12 @@ jobs:
       - name: "Baixar o código"
         uses: actions/checkout@v4
 
-      - name: "Instalar WinRM"
-        run: |
-          Install-Module -Name 'PSWindowsUpdate' -Force -SkipPublisherCheck
-          Install-Module -Name 'Carbon' -Force -SkipPublisherCheck
-          Import-Module -Name 'PSWindowsUpdate'
-          Import-Module -Name 'Carbon'
-
       - name: "Copiar arquivos para o servidor Windows"
-        uses: menardorama/winrm-action@v2
-        with:
-          host: ${{ secrets.HOST_SERVER }}
-          username: ${{ secrets.EC2_USER }}
-          password: ${{ secrets.EC2_PASSWORD }}
-          use_tls: true
-          script_file: |
-            Copy-Item -Path '.' -Destination 'C:\\xampp\\htdocs' -Recurse
+        run: |
+          $user = "${{ secrets.EC2_USER }}"
+          $password = ConvertTo-SecureString "${{ secrets.EC2_PASSWORD }}" -AsPlainText -Force
+          $credential = New-Object System.Management.Automation.PSCredential ($user, $password)
+          Invoke-Command -ComputerName "${{ secrets.HOST_SERVER }}" -Credential $credential -ScriptBlock {
+            Copy-Item -Path "$env:GITHUB_WORKSPACE\*" -Destination "C:\xampp\htdocs" -Recurse -Force
+          } -Authentication Basic -UseSSL
+        shell: pwsh
