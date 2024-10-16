@@ -6,28 +6,26 @@ on:
 
 jobs:
   build_deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: "Baixar o código"
         uses: actions/checkout@v4
 
-      - name: "Copiar arquivos para o servidor Windows"
-        run: |
-          $user = "${{ secrets.EC2_USER }}"
-          $password = ConvertTo-SecureString "${{ secrets.EC2_PASSWORD }}" -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential ($user, $password)
-          Invoke-Command -ComputerName "${{ secrets.HOST_SERVER }}" -Credential $credential -ScriptBlock {
-            Copy-Item -Path "$env:GITHUB_WORKSPACE\*" -Destination "C:\xampp\htdocs" -Recurse -Force
-          } -Authentication Basic -UseSSL
-        shell: pwsh
+      - name: "Copiar arquivos para o servidor Windows via SCP"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST_SERVER }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "C:\\xampp\\htdocs"
 
-      - name: "Executar comandos remotos via WinRM"
-        run: |
-          $user = "${{ secrets.EC2_USER }}"
-          $password = ConvertTo-SecureString "${{ secrets.EC2_PASSWORD }}" -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential ($user, $password)
-          Invoke-Command -ComputerName "${{ secrets.HOST_SERVER }}" -Credential $credential -ScriptBlock {
-            cd "C:\xampp\htdocs"
-          } -Authentication Basic -UseSSL
-        shell: pwsh
+      - name: "Executar comandos remotos via SSH"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_SERVER }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd "C:\\xampp\\htdocs"
