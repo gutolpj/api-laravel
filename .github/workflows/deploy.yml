@@ -12,18 +12,6 @@ jobs:
       - name: "Baixar o código"
         uses: actions/checkout@v4
 
-      - name: "Verificar e configurar WinRM no servidor"
-        run: |
-          $user = "${{ secrets.EC2_USER }}"
-          $password = ConvertTo-SecureString "${{ secrets.EC2_PASSWORD }}" -AsPlainText -Force
-          $credential = New-Object System.Management.Automation.PSCredential ($user, $password)
-          if (-not (Test-Path WSMan:\localhost\Client\TrustedHosts)) {
-            New-Item -Path WSMan:\localhost\Client\TrustedHosts -Value '*'
-          }
-          Add-Content -Path WSMan:\localhost\Client\TrustedHosts -Value "${{ secrets.HOST_SERVER }}"
-          Start-Service -Name WinRM
-        shell: pwsh
-
       - name: "Copiar arquivos para o servidor Windows"
         run: |
           $user = "${{ secrets.EC2_USER }}"
