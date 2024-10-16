@@ -10,19 +10,14 @@ jobs:
     steps:
       - name: "Baixar o código"
         uses: actions/checkout@v4
+
       - name: "Copiar arquivos para o servidor Windows"
-        uses: appleboy/scp-action@v0.1.7
+        uses: Dawny33/WinRM@master
         with:
           host: ${{ secrets.HOST_SERVER }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
-          target: "C:\\xampp\\htdocs"
-      - name: "Executar comandos remotos via SSH"
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST_SERVER }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd "C:\\xampp\\htdocs"
+          password: ${{ secrets.EC2_PASSWORD }}
+          port: 5986
+          use_https: true
+          command: |
+            Copy-Item -Path "." -Destination "C:\xampp\htdocs" -Recurse
