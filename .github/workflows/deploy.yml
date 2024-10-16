@@ -12,7 +12,14 @@ jobs:
       - name: "Baixar o código"
         uses: actions/checkout@v4
 
-      - name: "Configurar WinRM no servidor"
+      - name: "Configurar e iniciar WinRM no servidor"
+        run: |
+          New-NetFirewallRule -Name "WinRM-HTTP" -DisplayName "WinRM over HTTP" -Protocol TCP -LocalPort 5985 -Action Allow
+          New-NetFirewallRule -Name "WinRM-HTTPS" -DisplayName "WinRM over HTTPS" -Protocol TCP -LocalPort 5986 -Action Allow
+          Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value '*'
+          Start-Service -Name WinRM
+
+      - name: "Copiar arquivos para o servidor Windows"
         run: |
           $user = "${{ secrets.EC2_USER }}"
           $password = ConvertTo-SecureString "${{ secrets.EC2_PASSWORD }}" -AsPlainText -Force
