@@ -12,12 +12,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: "Copiar arquivos para o servidor Windows"
-        uses: appleboy/winrm-action@v0.1.0
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST_SERVER }}
           username: ${{ secrets.EC2_USER }}
-          password: ${{ secrets.EC2_PASSWORD }}
-          port: 5986
-          use_https: true
-          command: |
-            Copy-Item -Path "C:\github\workspace\*" -Destination "C:\xampp\htdocs" -Recurse
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Usando chave SSH
+          source: "."
+          target: "C:\\xampp\\htdocs"
